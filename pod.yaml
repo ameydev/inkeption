@@ -1,0 +1,36 @@
+apiVersion: v1 
+kind: Pod 
+metadata: 
+    name: k8s-in-pod
+spec:
+  restartPolicy: Never
+  containers:
+    - name: k8s-in-pod
+      image: ameydev/k8s-in-pod:latest
+      imagePullPolicy: Always
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - mountPath: /var/run/docker.sock
+          name: docker-sock
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+        - name: dind-storage
+          mountPath: /var/lib/docker
+  volumes:
+  - name: docker-sock
+    hostPath:
+        path: /var/run/docker.sock
+  - name: modules
+    hostPath:
+      path: /lib/modules
+      type: Directory
+  - name: cgroup
+    hostPath:
+      path: /sys/fs/cgroup
+      type: Directory
+  - name: dind-storage
+    emptyDir: {}
