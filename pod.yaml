@@ -1,12 +1,12 @@
 apiVersion: v1 
 kind: Pod 
 metadata: 
-    name: k8s-in-pod
+    name: inkeption
 spec:
   restartPolicy: Never
   containers:
-    - name: k8s-in-pod
-      image: ameydev/k8s-in-pod:latest
+    - name: inkeption
+      image: ameydev/inkeption:latest
       imagePullPolicy: Always
       securityContext:
         privileged: true
