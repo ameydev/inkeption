@@ -1,0 +1,78 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: sample-app-testing
+spec:
+  entrypoint: inkeption
+  arguments:
+    parameters:
+    - name: git-repo
+      value: "https://github.com/ameydev/inkeption"
+  templates:
+  - name: inkeption
+    inputs:
+      parameters:
+      - name: git-repo
+    script:
+      image: ameydev/inkeption:demo
+      imagePullPolicy: Always
+      command: [bash]
+      source: |
+        set -euo pipefail
+        cd /
+        git clone https://github.com/ameydev/inkeption
+        cd /inkeption/
+        git fetch -q
+        git checkout -q demo
+        
+        
+
+        # kind create cluster --config examples/sample-app/deploy/kind-dev.yaml
+        # install ingress
+        
+        
+        # Expose application on localhost
+        # kubectl expose sercvice/nginx --name=nodeport --port=80 --target-port=80 --type=NodePort  --overrides '{ "apiVersion": "v1","spec":{"ports":[{"port":80,"protocol":"TCP","targetPort":80,"nodePort":30080}]}}'
+
+        echo sleeping
+        sleep 3600
+
+        kubectl create secret generic datadog-secret --from-literal=DATADOG_API_KEY=$DATADOG_API_KEY  --from-literal=DATADOG_APP_KEY=$DATADOG_APP_KEY
+        kubectl apply -f deploy.yaml
+      env:
+      - name: DOCKER_HOST
+        value: tcp://localhost:2375
+      # - name: AWS_ACCESS_KEY_ID
+      #   valueFrom:
+      #     secretKeyRef:
+      #       name: aws
+      #       key: AWS_ACCESS_KEY_ID
+      # - name: AWS_SECRET_ACCESS_KEY
+      #   valueFrom:
+      #     secretKeyRef:
+      #       name: aws
+      #       key: AWS_SECRET_ACCESS_KEY
+      volumeMounts:
+      - mountPath: /var/run/docker.sock
+        name: docker-sock
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+      - name: dind-storage
+        mountPath: /var/lib/docker
+  volumes:
+  - name: docker-sock
+    hostPath:
+        path: /var/run/docker.sock
+  - name: modules
+    hostPath:
+      path: /lib/modules
+      type: Directory
+  - name: cgroup
+    hostPath:
+      path: /sys/fs/cgroup
+      type: Directory
+  - name: dind-storage
+    emptyDir: {}

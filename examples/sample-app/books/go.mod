@@ -1,4 +1,4 @@
-module github.com/ameydev/inkeption/examples/sample-app
+module github.com/ameydev/inkeption/examples/sample-app/books
 
 go 1.16
 

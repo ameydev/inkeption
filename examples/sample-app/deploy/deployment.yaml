@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: books-deployment
+  labels:
+    app: books
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: books
+  template:
+    metadata:
+      labels:
+        app: books
+    spec:
+      containers:
+      - name: books
+        image: ameydev/books:v1
+        env:
+        - name: DBURL
+          value: "root:root1234@tcp(database-1.cxmjir8mi1hs.us-east-1.rds.amazonaws.com:3306)/bookdb?charset=utf8mb4&parseTime=True&loc=Local"
+        ports:
+        - containerPort: 8080
