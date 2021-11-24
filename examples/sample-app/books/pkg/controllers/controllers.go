@@ -14,6 +14,7 @@ import (
 var NewBook models.Book
 
 func CreateBook(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received request: ", r.Method)
 	CreateBook := &models.Book{}
 	utils.ParseBody(r, CreateBook)
 	b := CreateBook.CreateBook()
@@ -23,6 +24,7 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetBook(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received request: ", r.Method)
 	newBooks := models.GetAllBooks()
 	res, _ := json.Marshal(newBooks)
 	w.Header().Set("Content-Type", "pkglication/json")
@@ -31,6 +33,7 @@ func GetBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetBookById(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received request: ", r.Method)
 	vars := mux.Vars(r)
 	bookId := vars["bookId"]
 	ID, err := strconv.ParseInt(bookId, 0, 0)
@@ -45,6 +48,7 @@ func GetBookById(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateBook(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received request: ", r.Method)
 	var updateBook = &models.Book{}
 	utils.ParseBody(r, updateBook)
 	vars := mux.Vars(r)
@@ -71,6 +75,7 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteBook(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received request: ", r.Method)
 	vars := mux.Vars(r)
 	bookId := vars["bookId"]
 	ID, err := strconv.ParseInt(bookId, 0, 0)

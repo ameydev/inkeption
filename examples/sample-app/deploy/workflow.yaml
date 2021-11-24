@@ -1,0 +1,65 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: sample-app-testing
+spec:
+  entrypoint: inkeption
+  arguments:
+    parameters:
+    - name: git-repo
+      value: "https://github.com/ameydev/inkeption"
+  templates:
+  - name: inkeption
+    inputs:
+      parameters:
+      - name: git-repo
+    script:
+      image: ameydev/inkeption:demo
+      imagePullPolicy: Always
+      command: [bash]
+      source: |
+        cd /app
+        bash create-kind-cluster.sh
+        git clone https://github.com/ameydev/inkeption
+        cd inkeption/
+        git fetch -q
+        git checkout -q demo
+        
+        cd examples/sample-app/deploy        
+        kubectl apply -f deployment.yaml -f service.yaml
+        # Wait for pods
+        kubectl wait --for=condition=ready pod -l app=books
+        sleep 10
+        kubectl get pods
+        # Expose application on localhost
+        kubectl port-forward svc/books-service 30080:80 &
+        sleep 10
+        cd /app/inkeption/examples/sample-app/tester
+        ./tester
+        echo "Done with the testing"
+        echo "Deleting the kind cluster"
+        kind delete clusters test
+      volumeMounts:
+      - mountPath: /var/run/docker.sock
+        name: docker-sock
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+      - name: dind-storage
+        mountPath: /var/lib/docker
+  volumes:
+  - name: docker-sock
+    hostPath:
+        path: /var/run/docker.sock
+  - name: modules
+    hostPath:
+      path: /lib/modules
+      type: Directory
+  - name: cgroup
+    hostPath:
+      path: /sys/fs/cgroup
+      type: Directory
+  - name: dind-storage
+    emptyDir: {}
